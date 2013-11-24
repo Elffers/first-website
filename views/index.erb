@@ -1,5 +1,5 @@
 <!-- index.erb -->
-<% t = Time.new %>
+<% t = Time.new.gmtime %>
 Hello, the time in London is currently <%= t.strftime("%l:%M %P on %A, %B %d, %Y") %><br><br>
 
-The time in Seattle is currently <%= t.localtime.strftime("%l:%M %P on %A, %B %d, %Y") %>
+The time in Seattle is currently <%= t.getlocal("-08:00").strftime("%l:%M %P on %A, %B %d, %Y") %>

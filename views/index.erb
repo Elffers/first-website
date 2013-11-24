@@ -1,2 +1,5 @@
 <!-- index.erb -->
-Hello, the time is currently <%= Time.new.strftime("%l:%M %P on %A, %B %d, %Y") %>
+<% t = Time.new %>
+Hello, the time in London is currently <%= t.strftime("%l:%M %P on %A, %B %d, %Y") %><br><br>
+
+The time in Seattle is currently <%= t.localtime.strftime("%l:%M %P on %A, %B %d, %Y") %>

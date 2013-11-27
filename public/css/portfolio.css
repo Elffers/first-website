@@ -4,14 +4,14 @@ body {
   background-position: center center;
   }
 
-h1 {
+.utopiatitle {
   color: white;
   font-variant: small-caps;
   background-color: black;
   text-align: center;
   }
 
-h2 {
+.utopiacaption {
   color: black;
   font-variant: small-caps;
   font-size: 20px;

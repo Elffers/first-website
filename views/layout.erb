@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <link href="/css/main.css" media= "all" rel="stylesheet">
+    <title>Hsing-Hui Hsu</title>
+  </head>
+  <body>
+
+    <div class='container'> 
+
+      <div class='header'> 
+        <h1> Hsing-Hui Hsu </h1>
+
+      </div> 
+
+      <div><ul class='navigation'>
+        <li><a href= "/home"> Home</a></li>
+        <li><a href= "/about"> About</a></li>
+        <li><a href= "/portfolio"> Portfolio</a></li>
+        <li><a href= "/contact"> Contact</a></li>
+        <li><a href= "/cute_pictures_of_animals">Fluffy things</a></li>
+      </ul></div>
+    
+    </div>
+
+    <%= yield %> <!-- this injects specific erb file in layout file -->
+
+  </body>
+</html>

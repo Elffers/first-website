@@ -27,6 +27,8 @@ class MyApp < Sinatra::Base
     erb :cute_pictures_of_animals
   end
 
+  get "/blog/:post_name" do
+    erb "/posts/#{params[:post_name]}".to_sym
+  end
 
-  
 end

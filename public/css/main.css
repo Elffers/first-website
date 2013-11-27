@@ -5,18 +5,22 @@ body {
   }
 
 .header {
-  position: relative;
-  top:100px;
+  position: absolute;
+  top:80px;
   right: 300px;
   font-variant: small-caps;
   color: black;
   font-weight: 900;
   }
 
-h2 {
-  font-size: 20px;
+.subheader {
+  font-size: 15px;
   text-align: right;
   line-height: .8;
+  font-variant: small-caps;
+  position: absolute;
+  right: 300px;
+  top: 200px;
   }
 
 
@@ -31,13 +35,14 @@ li {
   padding-left: 10px;
   font-variant: small-caps;
   }
+
 a:link {
   color: white;
-}
+  }
 
 a:visited {
   color: 
-}
+  }
 
 .navigation {
   color: white;

@@ -28,6 +28,10 @@ class MyApp < Sinatra::Base
     erb :portfolio 
   end
 
+  get '/portfolio/dinosaurs' do
+    erb :dinosaurs
+  end
+
   get '/blog' do
     erb :blog
   end

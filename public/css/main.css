@@ -2,16 +2,16 @@ body {
   border: 0px;
   background: url(/images/whiteumbrella.jpg);
   background-size: cover; 
-  }
+}
 
 .header {
-  position: fixed;
+  position: absolute;
   top:80px;
   right: 300px;
   font-variant: small-caps;
   color: black;
   font-weight: 900;
-  }
+}
 
 .subheader {
   font-size: 15px;
@@ -21,7 +21,7 @@ body {
   position: absolute;
   right: 300px;
   top: 200px;
-  }
+}
 
 /*start about styling*/
 .about {
@@ -29,12 +29,12 @@ body {
   background: url(/images/rainbow.jpeg);
   background-size: cover; 
   background-position: center right;
-  }
+}
 
 .about_container {
   width: 1100px;
   margin: 10px 50px;
-  }
+}
 
 .bio_box {
   width: 530px;
@@ -44,14 +44,14 @@ body {
   display: inline-block;
   background-color: transparent;
   padding-left: 10px;
-  }
+}
 
 .profile {
   border: 2px solid black;
   padding: 2px;
   min-height: 300px;
   min-width: 300px;
-  }
+}
 
 /*end about styling*/
 
@@ -59,7 +59,7 @@ body {
 
 a:link {
   color: white;
-  }
+}
 
 /*a:visited {
   color: blue;
@@ -75,13 +75,13 @@ a:link {
   margin: 50px;
   position: relative;
   font-variant: small-caps;
-  }
+}
 
 .navigation li {
   display: inline-block;
   padding: 5px;
   color: white;
-  }
+}
 
 /*Dropdown menu*/
 
@@ -89,23 +89,22 @@ a:link {
   display: none;
   position: fixed;
   list-style-type: none;
-  /*margin-left: 0px;*/
-  }
+  margin-left: -45px;
+}
 
 .navigation li:hover {
-  background-color: #585858;
-  }
+  background-color: #6E6E6E;
+}
 
 .navigation li:hover ul {
   display: block;
-  margin-left: 0px;
-  }
+}
 
 .portfolio_menu li {
   display: block;
-  padding-left: 5px;
+  padding-left: 0px;
   margin-left: 0px;
-  }
+}
 
 /*end dropdown*/
 
@@ -113,18 +112,12 @@ a:link {
 .posts {
   display: block;
   margin-left: 50px;
-  }
+}
 
 .blog_heading{
   font-variant: small-caps;
   margin-left: 50px;
   font-size: 20px;
-  }
+}
 
-/*contact styling*/
-.contact_block {
-  font-variant: small-caps;
-  text-align: right;
-  margin-right: 300px;
-  }
 

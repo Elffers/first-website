@@ -9,6 +9,7 @@ class MyApp < Sinatra::Base
    @posts = Dir.glob("views/posts/*.erb").map do |post_name| 
       post_name.split("/").last.slice(0..-5)
     end
+   @sorted_posts = meta_data.sort_by {|post, date_hash| date_hash["date"]}.reverse
   end
 
   get '/' do
@@ -25,10 +26,6 @@ class MyApp < Sinatra::Base
 
   get '/portfolio' do
     erb :portfolio 
-  end
-
-  get '/contact' do
-    erb :contact
   end
 
   get '/blog' do
@@ -53,8 +50,8 @@ class MyApp < Sinatra::Base
       @metadata = {}
       @posts.each do |post|
       html = erb("/posts/#{post}".to_sym, layout: false) #returns string with the post as a string
-      meta = YAML.load(html.split("\n\n", 2).first) #returns hash
-      metadata[post] = meta #puts hash into hash
+      meta = YAML.load(html.split("\n\n", 2).first) #returns hash, keys are post names, values are hashes with dates
+      @metadata[post] = meta #puts hash into hash
     end
       @metadata
     end

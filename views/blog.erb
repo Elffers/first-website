@@ -7,9 +7,13 @@
   </head>
   <body>
 
+  <div class= "blog_heading"> Musings</div>
+
   <div class="posts">
-    <% @posts.each do |post| %>
-    <a href="/blog/<%= post%>"> <%= post %></a>
+    
+    <% @sorted_posts.each do |post, date_array|%>
+      <a href="/blog/<%= post%>"> <%= post %></a>
+      <br>
     <% end %>
   </div>
 

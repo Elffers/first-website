@@ -23,7 +23,7 @@ body {
   top: 200px;
 }
 
-/*start about styling*/
+/*about styling*/
 .about {
   border: 0px;
   background: url(/images/rainbow.jpeg);
@@ -53,17 +53,11 @@ body {
   min-width: 300px;
 }
 
-/*end about styling*/
-
 /*navigation bar styling*/
 
 a:link {
   color: white;
 }
-
-/*a:visited {
-  color: blue;
-  }*/
 
 .navigation {
   display: block;
@@ -106,13 +100,22 @@ a:link {
   margin-left: 0px;
 }
 
-/*end dropdown*/
-
 /*blog styling*/
 .posts {
   display: block;
-  margin-left: 50px;
+  margin: 10px 80px;
   padding: 10px;
+  text-align: justify;
+}
+
+.posts h1 {
+  font-variant: small-caps;
+  font-size: 25px;
+}
+
+.posts h2 {
+  font-variant: small-caps;
+  font-size: 20px;
 }
 
 .blog_heading{

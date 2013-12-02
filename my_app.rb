@@ -10,7 +10,6 @@ class MyApp < Sinatra::Base
       post_name.split("/").last.slice(0..-5)
     end
    @sorted_posts = meta_data.sort_by {|post, date_hash| date_hash["date"]}.reverse
-   puts @sorted_posts.first {|post, array| array["date"]}
   end
 
   get '/' do

@@ -1,5 +1,5 @@
 body {
-  background: url(/images/whiteumbrella.jpg);
+  background: url(/img/whiteumbrella.jpg);
   background-size: cover; 
 }
 
@@ -25,7 +25,7 @@ body {
 /*about styling*/
 .about {
   border: 0px;
-  background: url(/images/rainbow.jpeg);
+  background: url(/img/rainbow.jpeg);
   background-size: cover; 
   background-position: center right;
 }
@@ -101,7 +101,7 @@ a:link {
 
 /*utopia styling*/
 .portfolio_body {
-  background: url(/images/steps.jpg);
+  background: url(/img/steps.jpg);
   background-size: cover;
   background-position: center center;
   }
@@ -131,6 +131,14 @@ a:link {
   text-align:center;
   }
 
+.gallery a {
+  font-variant: small-caps;
+}
+
+.gallery a:hover {
+  color: blue;
+}
+
 .utopia {
   vertical-align: middle;
   display:inline;
@@ -140,7 +148,6 @@ a:link {
   }
 
 .utopia:hover {
-  border:1px solid blue;
   opacity: 1;
   }
 

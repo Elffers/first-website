@@ -178,6 +178,14 @@ a:link {
   text-align: justify;
 }
 
+.post_link {
+  font-variant: small-caps;
+}
+
+.post_date {
+  font-variant: small-caps;
+}
+
 .posts h1 {
   font-variant: small-caps;
   font-size: 25px;

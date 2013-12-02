@@ -3,8 +3,8 @@
 
   <div class="posts">
     <% @sorted_posts.each do |post, array|%>
-      <%= array["date"].strftime("%B %d, %Y:") %>
-      <a href="/blog/<%= post%>"> <%= array["title"] %></a>
+      <span class="post_date"><%= array["date"].strftime("%B %d, %Y:") %><span>
+      <a class="post_link" href="/blog/<%= post%>"> <%= array["title"] %></a>
       <br>
     <% end %>
     

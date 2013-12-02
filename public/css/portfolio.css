@@ -50,7 +50,11 @@ body {
   width:200px;
   margin:5px;
   }
-.footer{
-  clear: both;
 
+.dinosaurs {
+  display: inline-block;
+  margin: 10px;
 }
+
+.dinosaurs:hover {
+  border: 1px solid blue;

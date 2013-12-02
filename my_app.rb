@@ -53,7 +53,7 @@ class MyApp < Sinatra::Base
     else 
       @metadata = {}
       @posts.each do |post|
-      html = erb("/posts/#{post}".to_sym, layout: false) #returns string with the post as a string
+      html = erb("/posts/#{post}".to_sym, layout: false) #returns text of post as a string (html)
       meta = YAML.load(html.split("\n\n", 2).first) #returns hash, keys are post names, values are hashes with dates
       @metadata[post] = meta #puts hash into hash
     end

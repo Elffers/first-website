@@ -12,6 +12,10 @@ class MyApp < Sinatra::Base
    @sorted_posts = meta_data.sort_by {|post, date_hash| date_hash["date"]}.reverse
   end
 
+  #  @body_class=Dir.glob("views/*.erb").map do |post_name| 
+  #   post_name.split("/").last.slice(0..-5)
+  # end
+
   get '/' do
     erb :index
   end
@@ -21,10 +25,13 @@ class MyApp < Sinatra::Base
   end
 
   get '/about' do
+    @body_class = "about"
     erb :about
+
   end
 
   get '/portfolio' do
+    @body_class = "portfolio_body"
     erb :portfolio 
   end
 
@@ -33,6 +40,7 @@ class MyApp < Sinatra::Base
   end
 
   get '/blog' do
+    @body_class = "blog_body"
     erb :blog
   end
 

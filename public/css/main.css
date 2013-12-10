@@ -6,7 +6,7 @@
 
 .header {
   position: absolute;
-  top:80px;
+  top:70px;
   right: 250px;
   font-variant: small-caps;
   color: black;
@@ -80,7 +80,6 @@ a:link {
   margin: 50px;
   position: relative;
   font-variant: small-caps;
-  /*top: 131px;*/
 }
 
 .navigation li {
@@ -206,9 +205,22 @@ a:link {
 
 .posts {
   display: block;
+  margin: 10px 200px;
+  padding: 30px;
+  text-align: justify;
+  width: 800px;
+  border: 1px solid black;
+  background-color: white;
+  height: 400px;
+  overflow: scroll;
+}
+
+.posts_index {
+  display: block;
   margin: 10px 80px;
   padding: 15px;
   text-align: justify;
+  width: 800px;
 }
 
 .post_link {
@@ -243,7 +255,7 @@ a:link {
 }
 
 .post_body{
-  background-color: white;  
+  background: url(/img/river.jpg); 
   background-size: cover;
   background-position: right bottom;
 }

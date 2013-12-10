@@ -1,5 +1,5 @@
  <!-- <div class= "blog_heading"> Musings</div> -->
-  <div class="posts">
+  <div class="posts_index">
     <% @sorted_posts.each do |post, array|%>
       <span class="post_date"><%= array["date"].strftime("%B %d, %Y:") %><span>
       <a class="post_link" href="/blog/<%= post%>"> <%= array["title"] %></a>

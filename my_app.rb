@@ -17,10 +17,12 @@ class MyApp < Sinatra::Base
   # end
 
   get '/' do
+    @body_class = "index"
     erb :index
   end
 
   get '/home' do
+    @body_class = "index"
     erb :index
   end
 
@@ -36,6 +38,7 @@ class MyApp < Sinatra::Base
   end
 
   get '/portfolio/dinosaurs' do
+    @body_class = "portfolio_body"
     erb :dinosaurs
   end
 
@@ -49,6 +52,7 @@ class MyApp < Sinatra::Base
   end
 
   get "/blog/:post_name" do
+    @body_class = "post_body"
     page = erb("/posts/#{params[:post_name]}".to_sym, layout: false)
     page_body = page.split("\n\n", 2).last
     erb page_body

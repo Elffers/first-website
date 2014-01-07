@@ -1,4 +1,4 @@
-# my_app.rb 
+  # my_app.rb 
 
 require 'sinatra'
 require 'yaml'
@@ -71,7 +71,5 @@ class MyApp < Sinatra::Base
       @metadata
     end
   end
-
-  
 
 end

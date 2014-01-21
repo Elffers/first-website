@@ -4,7 +4,16 @@ title: "In which circles are drawn"
 <div class="posts">
   <p>A few weeks ago, a friend sent me this <a href= "http://perfectionkills.com/exploring-canvas-drawing-techniques/">link</a> about different brushstrokes in javascript.  I had no idea how to write javascript, and what with being overwhelmed with Learning All The Things, the email got lost.  Javascript would rear its mysterious head on occasion, especially in the implementation of certain <a href="http://www.dwuser.com/education/content/quick-guide-adding-smooth-scrolling-to-your-webpages/">fancy features</a> (which I tried <a href= "http://senturia.herokuapp.com">here</a> ) and <a href='https://github.com/chloerei/wmd-rails'> gems</a> (implemented <a href='http://raindrops-on-roses.herokuapp.com'>here</a>), but for the most part it remained in the shadowy recesses of All The Other Things To Learn.
   </p>
-  <p>Last week, we were finally introduced to the wacky world of js. At first, I thought it was a bit like glorified CSS, but as I played with it more, I found myself immersed.Specifically, I became obsessed with DRYing up the code to avoid tedious repetition of function calls to draw a bar graph. My crowning achievement was the following bit of code:</p>
+  <p>Last week, we were finally introduced to the wacky world of js. At first, it felt a bit like glorified CSS, but I quickly found myself immersed. One of the most fun things was getting to air out some trigonometry knowledge. Our <a href='https://github.com/jlembeck/daily-curriculum/blob/master/week10/resources/analytics.md'>project</a> had us drawing pie charts, and it was nice to discover that my high school math knowledge was still getting some use.  The following function converts polar coordinates to Cartesian coordinates (so that percentage labels could be placed appropriately on the pie graph, specifically, at the halfway point along the radius that bisects the pie wedge in question):
+    <div id='code'><code>
+      var rad2Cart = function(radiusLength, radians){<br>
+          &nbsp;&nbsp;var coords = {};<br>
+          &nbsp;&nbsp;coords.x = (radiusLength/2)* Math.cos(radians/2);<br>
+          &nbsp;&nbsp;coords.y = (radiusLength/2)* Math.sin(radians/2);<br>
+          &nbsp;&nbsp;return coords;<br>
+      };</code></div>
+
+  <p>I also became obsessed with DRYing up the code to avoid tedious repetition of function calls to draw a bar graph. After a lot of time spent refactoring, I emerged with the following bit of code:</p>
     <div id='code'><code> var Browser = function(el){<br>
         &nbsp;&nbsp;this.id = el.children[1].id;<br>
         &nbsp;&nbsp;this.count = parseInt(el.children[1].innerHTML);<br>

@@ -1,0 +1,142 @@
+date: 2014-02-01
+title: "In which H deals with more keys"
+
+<div class="posts">
+  <h1>Is it secret, is it safe?</h1>
+  <p>
+    Our midterm <a href="https://github.com/Ada-Developers-Academy/daily-curriculum/blob/master/week12/see-more.md">project</a> involved using remote web APIs to build a feed aggregator.  We had to login using OAuth and make calls to the Twitter, Tumblr, and Instagram APIs and render posts from selected feeds onto our user homepage. Our group chose a Peep theme, for obvious reasons.</p>
+    <div class ='peeps'><img src="http://dconheels.com/wp-content/uploads/2013/03/marshmallow_peeps.jpg" width= '500'></div>
+  <p>
+    I tackled the OAuth login task first. It turns out the whole OAuth process is a fairly involved process, requiring lots of interactions between a user, the application, and the API service. For those who like analogies (seriously, why did they ever get rid of that section on the SAT?<sup>[1]</sup>), think of it like this: 
+  </p>
+  <p>
+    Suppose you have a house.  You naturally have the keys to your house, and nobody else can come in unless they get the keys from you.  But suppose sometimes you want other people to come do stuff to your house--renovators, perhaps, or carpet cleaners, or some other service.  You need to give them the keys. 
+  </p>
+  <p>
+    Unfortunately, the world is a scary place, and a carpet cleaner isn't always what he seems.  So you want a secure way to make sure these people who come to your house are legit.  Now, you're a busy person.  You don't have time to do a background check on every carpet cleaner in town.  So you entrust your house keys to someone who's good at that sort of thing.  Let's call that person the Keymaster (in case you're still following, the Keymaster is the remote service, such as Twitter or Google, etc). The Keymaster has a super secure vault where he keeps lots of keys. 
+  </p>
+  <p>
+    Now, anyone who wants to get into your or anybody else's house has to first register with the Keymaster, so he knows about them--like being added to the Keymaster's contacts list.  In exchange, the Keymaster gives the carpet cleaner a pair of tokens (consumer key and consumer secret) that they can show to you, the owner of the house, in the event that you call them to come to your house, to prove that they are a registered service. 
+  </p>
+  <p>
+    So you need your carpet cleaned.  You call up the carpet cleaner.  They in turn call the Keymaster and make a request for your keys. The Keymaster says, "Okay, here are another pair of tokens (request tokens).  Give these to your client, and tell them to go to this window when they come over (callback url)."  The carpet cleaner gives you the tokens, which you then take to the Keymaster, who should recognize them, since, after all, they're the ones who provided them to the service. 
+  </p> 
+  <p>
+    The Keymaster then asks you if you're sure you want to trust the carpet cleaner, then gives the request tokens their stamp of approval, or authenticates them.  You take the authenticated tokens back to the carpet cleaner, which they then take to the Keymaster to exchange for a copy of your keys--but only a valet version, which only allows them to go into certain rooms of your house.  The end! Simple, right?
+  </p>
+  <p>
+    Fortunately for Rubyists like us, there is a nice gem called <a href="https://github.com/intridea/omniauth">Omniauth</a> that does most of the heavy lifting of the OAuth cycle for us.  In a Rails app, you bundle your gem, and then create a file in your initializers directory called "omniauth.rb", i.e.: </p>
+    <code>config/initializers/omniauth.rb</code>.  
+  <p>In this file, paste in the following:</p>
+
+<pre style="background:#042029;color:#839496">
+<span style="color:#a57800">Rails</span>.application.config.middleware.use <span style="color:#a57800">OmniAuth</span>::<span style="color:#a57800">Builder</span> <span style="color:#859900">do</span>
+  provider <span style="color:#269186">:twitter</span>, <span style="color:#a57800">ENV</span>[<span style="color:#269186"><span style="color:#d01f1e">'</span>CONSUMER_KEY<span style="color:#d01f1e">'</span></span>], <span style="color:#a57800">ENV</span>[<span style="color:#269186"><span style="color:#d01f1e">'</span>CONSUMER_SECRET<span style="color:#d01f1e">'</span></span>]
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+  
+  <p>
+    The <code>CONSUMER_KEY</code> and <code>CONSUMER_SECRET</code> are the two tokens or keys that the developer gets from Twitter, or Tumblr, or whatever resource you want to access (the Keymaster, so to speak), when they register an application. 
+    The actual values of these variables can be hidden in your app using the <a href="https://github.com/laserlemon/figaro">Figaro gem</a>, or simply set as environment variables.
+  <p>
+  <p>
+    When you register your app on Twitter or wherever, you also need to specify a callback url, which usually takes the form <code>your_application_url/auth/twitter/callback</code>.  Then, in your <code>routes.rb</code> file, set a get request for this callback url:
+  </p>
+    <code>get '/auth/:provider/callback', to: 'sessions#create'</code>
+
+  <p>where :provider is Twitter or whatever other provider you wish your users to sign in with. Then in your SessionsController.rb file, you might have something like this:</p>
+
+  <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">SessionsController &lt; ApplicationController</span></span>
+  <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">create</span>
+    auth_hash <span style="color:#859900">=</span> request.env[<span style="color:#269186"><span style="color:#d01f1e">'</span>omniauth.auth<span style="color:#d01f1e">'</span></span>]
+    <span style="color:#268bd2"><span style="color:#268bd2">@</span>user</span> <span style="color:#859900">=</span> <span style="color:#a57800">User</span>.find_or_create_from_auth_hash(auth_hash)
+    session[<span style="color:#269186">:user_id</span>] <span style="color:#859900">=</span> <span style="color:#268bd2"><span style="color:#268bd2">@</span>user</span>.id
+    redirect_to <span style="color:#269186"><span style="color:#d01f1e">'</span>/<span style="color:#d01f1e">'</span></span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>
+  In the above example, this would find an existing user from the Users table, or create one from the auth_hash.  In my group's version of the feed aggregator, we actually allowed the user to sign in via multiple providers (Twitter, Tumblr, and Instagram).  However, rather than creating a different user for each provider, we allowed the user to link multiple accounts by setting a conditional in the session#create action:
+</p>
+
+<pre style="background:#042029;color:#839496"> <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">create</span>
+    auth_hash <span style="color:#859900">=</span> request.env[<span style="color:#269186"><span style="color:#d01f1e">'</span>omniauth.auth<span style="color:#d01f1e">'</span></span>]
+    <span style="color:#268bd2"><span style="color:#268bd2">@</span>provider</span> <span style="color:#859900">=</span> <span style="color:#a57800">Provider</span>.find_by(<span style="color:#269186">uid:</span> auth_hash[<span style="color:#269186">:uid</span>])
+    
+    <span style="color:#738a05;font-weight:700">if</span> current_user 
+      <span style="color:#738a05;font-weight:700">if</span> <span style="color:#268bd2"><span style="color:#268bd2">@</span>provider</span>
+        redirect_to user_path(session[<span style="color:#269186">:user_id</span>]), <span style="color:#269186">notice:</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>This user already exists!<span style="color:#d01f1e">"</span></span>
+      <span style="color:#738a05;font-weight:700">else</span>
+        provider <span style="color:#859900">=</span> <span style="color:#a57800">Provider</span>.create_from_omniauth(auth_hash)
+        current_user.providers <span style="color:#859900">&lt;&lt;</span> provider
+        redirect_to user_path(session[<span style="color:#269186">:user_id</span>]), <span style="color:#269186">notice:</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>Account added!<span style="color:#d01f1e">"</span></span>
+      <span style="color:#738a05;font-weight:700">end</span>    
+    <span style="color:#738a05;font-weight:700">else</span> 
+      <span style="color:#738a05;font-weight:700">if</span> <span style="color:#268bd2"><span style="color:#268bd2">@</span>provider</span> 
+        session[<span style="color:#269186">:user_id</span>] <span style="color:#859900">=</span> <span style="color:#268bd2"><span style="color:#268bd2">@</span>provider</span>.user_id
+        redirect_to user_path(session[<span style="color:#269186">:user_id</span>]), <span style="color:#269186">notice:</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>You have been successfully signed in!<span style="color:#d01f1e">"</span></span>
+      <span style="color:#738a05;font-weight:700">else</span>
+        user <span style="color:#859900">=</span> <span style="color:#a57800">User</span>.create_from_omniauth(auth_hash)
+        session[<span style="color:#269186">:user_id</span>] <span style="color:#859900">=</span> user.id
+        provider <span style="color:#859900">=</span> <span style="color:#a57800">Provider</span>.create_from_omniauth(auth_hash)
+        <span style="color:#738a05;font-weight:700">if</span> provider
+          user.providers <span style="color:#859900">&lt;&lt;</span> provider
+          redirect_to user_path(session[<span style="color:#269186">:user_id</span>]), <span style="color:#269186">notice:</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>Signed up!<span style="color:#d01f1e">"</span></span>
+        <span style="color:#738a05;font-weight:700">else</span>
+          redirect_to root_path, <span style="color:#269186">notice:</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>There was a problem signing in!<span style="color:#d01f1e">"</span></span>
+        <span style="color:#738a05;font-weight:700">end</span>
+      <span style="color:#738a05;font-weight:700">end</span>
+    <span style="color:#738a05;font-weight:700">end</span>
+
+  <span style="color:#738a05;font-weight:700">end</span>
+
+</pre>
+
+<p>Then, we actually parse the auth_hash that omniauth spits back at us in the <code>provider.rb</code> file: </p>
+<pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">Provider &lt; ActiveRecord::Base</span></span> 
+  validates <span style="color:#269186">:name</span>, <span style="color:#269186">presence:</span> <span style="color:#269186">true</span>
+  validates <span style="color:#269186">:uid</span>, <span style="color:#269186">presence:</span> <span style="color:#269186">true</span>
+  validates <span style="color:#269186">:username</span>, <span style="color:#269186">presence:</span> <span style="color:#269186">true</span>
+  validates <span style="color:#269186">:avatar_url</span>, <span style="color:#269186">presence:</span> <span style="color:#269186">true</span>
+  validates <span style="color:#269186">:token</span>, <span style="color:#269186">presence:</span> <span style="color:#269186">true</span>
+  belongs_to <span style="color:#269186">:user</span>
+  
+  <span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">self.find_or_create_from_omniauth</span>(auth_hash)</span>
+    <span style="color:#a57800">Provider</span>.find_by(<span style="color:#269186">uid:</span> auth_hash[<span style="color:#269186">:uid</span>], <span style="color:#269186">name:</span> auth_hash[<span style="color:#269186">:provider</span>]) 
+            <span style="color:#859900">||</span> create_from_omniauth(auth_hash)
+  <span style="color:#738a05;font-weight:700">end</span>
+
+  <span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">self.create_from_omniauth</span>(auth_hash)</span>
+    <span style="color:#a57800">Provider</span>.create!(
+      <span style="color:#269186">uid:</span>        auth_hash[<span style="color:#269186">:uid</span>],
+      <span style="color:#269186">name:</span>       auth_hash[<span style="color:#269186">:provider</span>],
+      <span style="color:#269186">avatar_url:</span> auth_hash[<span style="color:#269186">:info</span>][<span style="color:#269186">:image</span>] <span style="color:#859900">||</span> auth_hash[<span style="color:#269186">:info</span>][<span style="color:#269186">:avatar</span>],
+      <span style="color:#269186">username:</span>   auth_hash[<span style="color:#269186">:info</span>][<span style="color:#269186">:nickname</span>],
+      <span style="color:#269186">secret:</span>     auth_hash[<span style="color:#269186">:credentials</span>][<span style="color:#269186">:secret</span>], 
+      <span style="color:#269186">token:</span>      auth_hash[<span style="color:#269186">:credentials</span>][<span style="color:#269186">:token</span>]
+    )
+  <span style="color:#738a05;font-weight:700">rescue</span> <span style="color:#a57800">ActiveRecord</span>::<span style="color:#a57800">RecordInvalid</span>
+    <span style="color:#269186">nil</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#738a05;font-weight:700">end</span>
+
+</pre>
+
+<p>
+  Ta-da! Honestly, the hardest part is probably making your eyeballs focus on the robot vomit that constitutes returned hashes, or hash-like objects, and extracting the right information out of it. Fortunately in the case of omniauth, we have a nice <a href="https://github.com/intridea/omniauth/wiki/Auth-Hash-Schema">schema</a> already provided for us.  Aren't Rubyists nice? They are so nice.
+</p>
+<p>
+  Next time: How and when to parse hashes, and why it's the best thing since sliced bread.
+</p>
+
+
+   <h1><a href= "http://www.youtube.com/watch?v=nMmyQF35e8U">In which Peeps make a Hash of things</a></h1>
+
+   <div class="footnote">[1] For the record, they had already gotten rid of that section when I took the SATs. I'm not <em>that</em> old.</div>
+
+
+
+
+</div>

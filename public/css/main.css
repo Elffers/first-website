@@ -279,3 +279,12 @@ a:visited {
   width: 500px;
   margin: auto;
 }
+
+.peeps {
+  width: 500px;
+  margin: auto;
+}
+
+.footnote {
+  font: small-caption;
+}

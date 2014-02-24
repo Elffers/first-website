@@ -1,0 +1,110 @@
+date: 2014-02-24
+title: "Using an Interpreted language to Interpret Language"
+
+<div class="posts">
+
+<p>This past month, I met with a mentor from EMC/Isilon, who gave me a coding project to help me better understand how an interpreter works. I was given a simple file that contained just three lines in a simple, fake language that we called "anaconda": 
+</p>
+
+<pre style="background:#042029;color:#839496">x <span style="color:#859900">=</span> <span style="color:#269186">5</span>
+y <span style="color:#859900">=</span> x <span style="color:#859900">*</span> x
+print y
+</pre>
+
+The task was to use Python that would interpret those lines--that is, that would take the file, parse each line and figure out what it meant, and spit out the correct value, in this case, 25. (I ultimately ended up using just Ruby, since the time needed to fulfill my ambitions to learn Python > hours in a day).  My first pass at figuring this out was, admittedly, a bit hacky:
+
+<!-- first past -->
+<pre style="background:#042029;color:#839496">lines <span style="color:#859900">=</span> <span style="color:#a57800">File</span>.readlines(<span style="color:#269186"><span style="color:#d01f1e">"</span>program.an<span style="color:#d01f1e">"</span></span>)
+
+assignment_hash <span style="color:#859900">=</span> {}
+lines.each <span style="color:#859900">do </span>|<span style="color:#268bd2">line</span>|
+  <span style="color:#738a05;font-weight:700">if</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>=<span style="color:#d01f1e">"</span></span>
+    array <span style="color:#859900">=</span> line.split(<span style="color:#269186"><span style="color:#d01f1e">"</span> = <span style="color:#d01f1e">"</span></span>).map {|<span style="color:#268bd2">char</span>| char.strip}
+<span style="color:#586e75">    # raise error if literal precedes equal sign?</span>
+    assignment_hash[array.first] <span style="color:#859900">=</span> array.last
+  <span style="color:#738a05;font-weight:700">elsif</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>
+    m <span style="color:#859900">=</span> line.match(<span style="color:#d30102">/</span><span style="color:#d30102">print </span><span style="color:#d30102">/</span>)
+    assignment_hash[<span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>] <span style="color:#859900">=</span> m.post_match
+  <span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#586e75"># if key is variable, convert values of hash into literal </span>
+
+assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#268bd2">k</span>, <span style="color:#268bd2">v</span>|
+  <span style="color:#738a05;font-weight:700">if</span> <span style="color:#d30102">/</span><span style="color:#d30102"><span style="color:#cb4b16">\w</span></span><span style="color:#d30102">/</span>.match(k).to_s <span style="color:#859900">==</span> k <span style="color:#859900">&amp;&amp;</span> v <span style="color:#859900">==</span> <span style="color:#d30102">/</span><span style="color:#d30102"><span style="color:#cb4b16">\d</span></span><span style="color:#d30102">/</span>.match(v).to_s
+    assignment_hash[k] <span style="color:#859900">=</span> v.to_i 
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#586e75">#Parse value of assigment hash into array if contains binary operator</span>
+  assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#268bd2">k</span>,<span style="color:#268bd2">v</span>|
+    <span style="color:#738a05;font-weight:700">if</span> v.is_a? <span style="color:#a57800">String</span>
+      operators <span style="color:#859900">=</span> <span style="color:#2aa198"><span style="color:#d01f1e">%w[</span>= - * /<span style="color:#d01f1e">]</span></span>
+      <span style="color:#738a05;font-weight:700">for</span> x <span style="color:#738a05;font-weight:700">in</span> operators
+        <span style="color:#738a05;font-weight:700">if</span> v.include?(x)
+          assignment_hash[k] <span style="color:#859900">=</span> v.partition(<span style="color:#269186"><span style="color:#d01f1e">"</span> <span style="color:#d01f1e">#{</span>x<span style="color:#d01f1e">}</span> <span style="color:#d01f1e">"</span></span>)
+        <span style="color:#738a05;font-weight:700">end</span>
+      <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#586e75">      # evaluates the variables in the expression</span>
+      assignment_hash[k] <span style="color:#859900">=</span> v.map <span style="color:#859900">do </span>|<span style="color:#268bd2">variable</span>|
+        <span style="color:#738a05;font-weight:700">if</span> assignment_hash[variable]
+          variable <span style="color:#859900">=</span> assignment_hash[variable] 
+        <span style="color:#738a05;font-weight:700">else</span>
+          variable
+        <span style="color:#738a05;font-weight:700">end</span>
+      <span style="color:#738a05;font-weight:700">end</span>  
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#586e75"># evaluate variables in expressions</span>
+assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#268bd2">k</span>, <span style="color:#268bd2">v</span>|
+  <span style="color:#738a05;font-weight:700">if</span> v.is_a? <span style="color:#a57800">Array</span>
+    assignment_hash[k] <span style="color:#859900">=</span> v.map <span style="color:#859900">do </span>|<span style="color:#268bd2">variable</span>|
+      <span style="color:#738a05;font-weight:700">if</span> assignment_hash[variable]
+        variable <span style="color:#859900">=</span> assignment_hash[variable] 
+      <span style="color:#738a05;font-weight:700">else</span>
+        variable
+      <span style="color:#738a05;font-weight:700">end</span>
+    <span style="color:#738a05;font-weight:700">end</span>  
+    <span style="color:#738a05;font-weight:700">case</span> 
+    <span style="color:#738a05;font-weight:700">when</span> assignment_hash[k].include?(<span style="color:#269186"><span style="color:#d01f1e">"</span> * <span style="color:#d01f1e">"</span></span>)
+      assignment_hash[k] <span style="color:#859900">=</span> assignment_hash[k].first <span style="color:#859900">*</span> assignment_hash[k].last
+    <span style="color:#738a05;font-weight:700">when</span> assignment_hash[k].include?(<span style="color:#269186"><span style="color:#d01f1e">"</span> + <span style="color:#d01f1e">"</span></span>)
+      assignment_hash[k] <span style="color:#859900">=</span> assignment_hash[k].first <span style="color:#859900">+</span> assignment_hash[k].last
+<span style="color:#586e75">      # etc for other operators</span>
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#586e75"># print output</span>
+
+output <span style="color:#859900">=</span> assignment_hash[<span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>]
+assignment_hash[output] <span style="color:#738a05;font-weight:700">if</span> assignment_hash.has_key? output
+</pre>
+<!-- end first past -->
+
+<p>Obviously, it's not very pretty. The basic logic is that the interpreter creates an assignment hash, which sort of represents computer memory, where variables and their values are stored, iterates through it to convert all the variables into literals all at once, then iterates again to convert all the expressions (in this case, limited to binary operations) all at once. Any print statements were stored as a separate key-value pair. The main problem with this is that it doesn't take into account multiple print statements, nor does it accurately take into account the order the lines are read. So, I refactored.
+</p>
+
+<p>The first step was to wrap the whole thing into one method, which could then be called from the command line, like so:</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">interpret</span>(lines)</span>
+..
+<span style="color:#738a05;font-weight:700">end</span>
+
+<span style="color:#a57800">ARGV</span>.each <span style="color:#859900">do </span>|<span style="color:#268bd2">filename</span>|
+  lines <span style="color:#859900">=</span> <span style="color:#a57800">File</span>.readlines(filename)
+  puts interpret(lines)
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>
+  This means that in the terminal, I would simply type <code>$ ruby anaconda.rb program.an</code> to run the interpreter on the given file, in this case, program.an.  
+</p>
+
+<p>The next step was then to 
+</p>
+
+</div>
+

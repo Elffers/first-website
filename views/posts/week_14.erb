@@ -2,7 +2,7 @@ date: 2014-02-24
 title: "Using an Interpreted language to Interpret Language"
 
 <div class="posts">
-
+<h1>Interpreting, Refactoring, and Recursion</h1>
 <p>This past month, I met with a mentor from EMC/Isilon, who gave me a coding project to help me better understand how an interpreter works. I was given a simple file that contained just three lines in a simple, fake language that we called "anaconda": 
 </p>
 
@@ -40,7 +40,7 @@ assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#
 <span style="color:#586e75">#Parse value of assigment hash into array if contains binary operator</span>
   assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#268bd2">k</span>,<span style="color:#268bd2">v</span>|
     <span style="color:#738a05;font-weight:700">if</span> v.is_a? <span style="color:#a57800">String</span>
-      operators <span style="color:#859900">=</span> <span style="color:#2aa198"><span style="color:#d01f1e">%w[</span>= - * /<span style="color:#d01f1e">]</span></span>
+      operators <span style="color:#859900">=</span> <span style="color:#2aa198"><span style="color:#d01f1e">%w[</span>+ - * /<span style="color:#d01f1e">]</span></span>
       <span style="color:#738a05;font-weight:700">for</span> x <span style="color:#738a05;font-weight:700">in</span> operators
         <span style="color:#738a05;font-weight:700">if</span> v.include?(x)
           assignment_hash[k] <span style="color:#859900">=</span> v.partition(<span style="color:#269186"><span style="color:#d01f1e">"</span> <span style="color:#d01f1e">#{</span>x<span style="color:#d01f1e">}</span> <span style="color:#d01f1e">"</span></span>)
@@ -103,7 +103,189 @@ assignment_hash[output] <span style="color:#738a05;font-weight:700">if</span> as
   This means that in the terminal, I would simply type <code>$ ruby anaconda.rb program.an</code> to run the interpreter on the given file, in this case, program.an.  
 </p>
 
-<p>The next step was then to 
+<p>Now, taking a look at the interpret method.  The idea is to read every line of the file passed in, and split each line by the equal sign, assigning the left-hand side of the expression as a key in the assignment hash, and the right-hand side as the value. My first implementation of this looked like this:</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#738a05;font-weight:700">if</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>=<span style="color:#d01f1e">"</span></span>
+  array <span style="color:#859900">=</span> line.split(<span style="color:#269186"><span style="color:#d01f1e">"</span> = <span style="color:#d01f1e">"</span></span>).map {|<span style="color:#268bd2">char</span>| char.strip}
+  assignment_hash[array.first] <span style="color:#859900">=</span> array.last
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>Major issues:
+  <ol>
+    <li>"array" is almost always a terrible variable name</li>
+    <li>since the map method strips each character of whitespace, I don't need it in the regex</li>
+    <li>calling the first and then the last element of an array when it's necessarily explicitly a tuple is sort of hacky</li>
+  </ol>
+
+  Fortunately, Ruby provides a nice solution for the last issue, which is to simultaneously assign multiple variables to the elements of an array.  So now the previous block looks like this:
+</p> 
+
+<pre style="background:#042029;color:#839496">lines.each <span style="color:#859900">do </span>|<span style="color:#268bd2">line</span>|
+  <span style="color:#738a05;font-weight:700">if</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>=<span style="color:#d01f1e">"</span></span>
+    lhs, rhs <span style="color:#859900">=</span> line.split(<span style="color:#269186"><span style="color:#d01f1e">"</span>=<span style="color:#d01f1e">"</span></span>).map {|<span style="color:#268bd2">char</span>| char.strip}
+    assignment_hash[lhs] <span style="color:#859900">=</span> rhs
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>Now the second part. This deals with the print statements.  Here, the string "print" is stored as a key in the assignment hash, and the value is anything parsed out by the regex:</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#738a05;font-weight:700">elsif</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>
+    m <span style="color:#859900">=</span> line.match(<span style="color:#d30102">/</span><span style="color:#d30102">print </span><span style="color:#d30102">/</span>)
+    assignment_hash[<span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>] <span style="color:#859900">=</span> m.post_match
+</pre>
+
+<p>This key-value pair is then called after everything is done evaluating at the end of the file:</p>
+
+  <pre style="background:#042029;color:#839496">output = assignment_hash[<span style="color:#269186"><span style="color:#748b00">"</span>print<span style="color:#748b00">"</span></span>]
+assignment_hash[output] <span style="color:#859900">if</span> assignment_hash.has_key<span style="color:#859900">?</span> output
+</pre>
+
+<p>Besides the unnecessary whitespace in the <code>/print /</code> regex, the main issue here is that this wouldn't handle multiple print statements properly. It would make more sense if all the print values were stored in the interpret method somehow.  We can do that by defining the output array within the method, and then appending any print statements to it directly.  Since the return value of interpret(lines) is printed at the end of our file (remember that ARGV thing? Yeah, that), we then need to return "output":</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">interpret</span>(lines)</span>
+  assignment_hash <span style="color:#859900">=</span> {}
+  output <span style="color:#859900">=</span> []
+  lines.each <span style="color:#859900">do </span>|<span style="color:#268bd2">line</span>|
+    <span style="color:#738a05;font-weight:700">if</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>=<span style="color:#d01f1e">"</span></span>
+      lhs, rhs <span style="color:#859900">=</span> line.split(<span style="color:#269186"><span style="color:#d01f1e">"</span> = <span style="color:#d01f1e">"</span></span>).map {|<span style="color:#268bd2">char</span>| char.strip}
+      assignment_hash[lhs] <span style="color:#859900">=</span> rhs
+    <span style="color:#738a05;font-weight:700">elsif</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>
+      m <span style="color:#859900">=</span> line.match(<span style="color:#d30102">/</span><span style="color:#d30102">print </span><span style="color:#d30102">/</span>)
+      output <span style="color:#859900">&lt;&lt;</span> m.post_match
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  output
+<span style="color:#738a05;font-weight:700">end</span>
+
+</pre>
+
+<p>Okay. So far so good.  Now the interpret method will print out the appropriate thing.  The problem is, nothing has been evaluated yet.  In the original file, we have the values in the assignment hash evaluated on a case-by-case basis.  In other words, in the first block of the original file:</p>
+
+<pre style="background:#042029;color:#839496">assignment_hash.each do<span style="color:#859900"> |</span>k, v<span style="color:#859900">|</span>
+  <span style="color:#859900">if</span><span style="color:#859900"> /</span><span style="color:#859900">\</span>w<span style="color:#859900">/</span>.match(k).to_s<span style="color:#859900"> == </span>k<span style="color:#859900"> &amp;</span><span style="color:#859900">&amp; </span>v<span style="color:#859900"> == </span><span style="color:#859900">/</span><span style="color:#859900">\</span>d<span style="color:#859900">/</span>.match(v).to_s
+    assignment_hash[k] = v.to_i 
+  <span style="color:#859900">end</span>
+<span style="color:#859900">end</span>
+
+</pre>
+
+<p>This looks for any key that is a variable, whose value is a literal integer, then converts it into the proper datatype. Problems:</p>
+<ol>
+  <li>The regex called on the key only matches variables that are represented by one letter</li>
+  <li>Similarly, the regex called on the value only matches literals that are represented by a single digit</li>
+  <li>The first part of the conditional isn't even really necessary</li>
+  <li>It gets confusing when each thing is a string or matchdata object.</li>
+</ol>
+
+<p>The next part parses out value in the assignment hash that is still a string (since the previous block ostensibly grabbed all the numbers and turned them into actual integers).  If the value happens to also be a key in the assignment hash, it returns the value of that key.  If there is a binary operator, it converts the value into an array, then goes through each variable and converts it into a literal, then evaluates the expression:</p>
+
+<pre style="background:#042029;color:#839496">assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#268bd2">k</span>,<span style="color:#268bd2">v</span>|
+  <span style="color:#738a05;font-weight:700">if</span> v.is_a? <span style="color:#a57800">String</span>
+    operators <span style="color:#859900">=</span> <span style="color:#2aa198"><span style="color:#d01f1e">%w[</span>+ - * /<span style="color:#d01f1e">]</span></span>
+    <span style="color:#738a05;font-weight:700">for</span> x <span style="color:#738a05;font-weight:700">in</span> operators
+      <span style="color:#738a05;font-weight:700">if</span> v.include?(x)
+        assignment_hash[k] <span style="color:#859900">=</span> v.partition(<span style="color:#269186"><span style="color:#d01f1e">"</span> <span style="color:#d01f1e">#{</span>x<span style="color:#d01f1e">}</span> <span style="color:#d01f1e">"</span></span>)
+      <span style="color:#738a05;font-weight:700">end</span>
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+
+</pre>
+
+<pre style="background:#042029;color:#839496">assignment_hash.each <span style="color:#859900">do </span>|<span style="color:#268bd2">k</span>, <span style="color:#268bd2">v</span>|
+  <span style="color:#738a05;font-weight:700">if</span> v.is_a? <span style="color:#a57800">Array</span>
+    assignment_hash[k] <span style="color:#859900">=</span> v.map <span style="color:#859900">do </span>|<span style="color:#268bd2">variable</span>|
+      <span style="color:#738a05;font-weight:700">if</span> assignment_hash[variable]
+        variable <span style="color:#859900">=</span> assignment_hash[variable] 
+      <span style="color:#738a05;font-weight:700">else</span>
+        variable
+      <span style="color:#738a05;font-weight:700">end</span>
+    <span style="color:#738a05;font-weight:700">end</span>  
+    <span style="color:#738a05;font-weight:700">case</span> 
+    <span style="color:#738a05;font-weight:700">when</span> assignment_hash[k].include?(<span style="color:#269186"><span style="color:#d01f1e">"</span> * <span style="color:#d01f1e">"</span></span>)
+      assignment_hash[k] <span style="color:#859900">=</span> assignment_hash[k].first <span style="color:#859900">*</span> assignment_hash[k].last
+    <span style="color:#738a05;font-weight:700">when</span> assignment_hash[k].include?(<span style="color:#269186"><span style="color:#d01f1e">"</span> + <span style="color:#d01f1e">"</span></span>)
+      assignment_hash[k] <span style="color:#859900">=</span> assignment_hash[k].first <span style="color:#859900">+</span> assignment_hash[k].last
+<span style="color:#586e75">      # etc for other operators</span>
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>Issues include unnecessary interpolation of a string, way too many nested conditionals and loops, and it's just ugly.  So, first of all, wouldn't it be nice if we evaluated the values of the assignment hash when they're stored in the first place? Doing so, we now have an interpret method that looks like this:</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">interpret</span>(lines)</span>
+  assignment_hash <span style="color:#859900">=</span> {}
+  output <span style="color:#859900">=</span> []
+  lines.each <span style="color:#859900">do </span>|<span style="color:#268bd2">line</span>|
+    <span style="color:#738a05;font-weight:700">if</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>=<span style="color:#d01f1e">"</span></span>
+      lhs, rhs <span style="color:#859900">=</span> line.split(<span style="color:#269186"><span style="color:#d01f1e">"</span> = <span style="color:#d01f1e">"</span></span>).map {|<span style="color:#268bd2">char</span>| char.strip}
+      assignment_hash[lhs] <span style="color:#859900">=</span> evaluate(rhs)
+    <span style="color:#738a05;font-weight:700">elsif</span> line.include? <span style="color:#269186"><span style="color:#d01f1e">"</span>print<span style="color:#d01f1e">"</span></span>
+      m <span style="color:#859900">=</span> line.match(<span style="color:#d30102">/</span><span style="color:#d30102">print </span><span style="color:#d30102">/</span>)
+      output <span style="color:#859900">&lt;&lt;</span> evaluate(m.post_match)
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  output
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>Now we just have to build a separate method, 'evaluate'.  The first thing we want to this method to do is handle the case of when the value is an number.  We can simplify that initial hash interation block from earlier and simply say:</p>
+
+  <pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">evaluate</span>(expression)</span>
+  expression.strip!
+  <span style="color:#738a05;font-weight:700">if</span> expression <span style="color:#859900">=~</span> <span style="color:#d30102">/</span><span style="color:#d30102">^<span style="color:#cb4b16">\d</span>+$</span><span style="color:#d30102">/</span>
+    expression.to_i
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>The "strip" frees us from having to worry about putting spaces in the regex itself, and anchoring the regex at the beginning and end makes sure we're only dealing with numerical expressions. Now, for variables, we want it to evaluate to the literal which hopefully has already been stored in our assignment hash.  In other words, we want to find a key in the assignment hash that matches the variable we are trying to evaluate and return the value of that key:
+</p>
+
+<pre style="background:#042029;color:#839496">elsif <span style="color:#268bd2">expression</span> <span style="color:#859900">=</span>~ <span style="color:#859900">/</span>^\w<span style="color:#859900">+</span>$<span style="color:#859900">/</span>
+    raise Error unless assignment_hash.has_key<span style="color:#859900">?</span>(<span style="color:#268bd2">expression</span>)
+      assignment_hash[<span style="color:#268bd2">expression</span>] 
+</pre>
+
+<p>Since this block needs to know about the assignment hash, we need it to be passed in as an argument. This means our evaluate method now looks like this:</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">evaluate</span>(expression, assignment_hash)</span>
+  expression.strip!
+  <span style="color:#738a05;font-weight:700">if</span> expression <span style="color:#859900">=~</span> <span style="color:#d30102">/</span><span style="color:#d30102">^<span style="color:#cb4b16">\d</span>+$</span><span style="color:#d30102">/</span>
+    expression.to_i
+  <span style="color:#738a05;font-weight:700">elsif</span> expression <span style="color:#859900">=~</span> <span style="color:#d30102">/</span><span style="color:#d30102">^<span style="color:#cb4b16">\w</span>+$</span><span style="color:#d30102">/</span>
+    <span style="color:#748b00">raise</span> <span style="color:#a57800">Error</span> <span style="color:#738a05;font-weight:700">unless</span> assignment_hash.has_key?(expression)
+      assignment_hash[expression]
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+
+</pre>
+
+<p>Onto the homestretch.  We need the evaluate method to do the right thing on a binary operation.  Using a regex, we can find any string value that contains a binary operator, grab out the two operands, and then evaluate.</p>
+
+<pre style="background:#042029;color:#839496"><span style="color:#738a05;font-weight:700">elsif</span> md <span style="color:#859900">=</span> expression.match(<span style="color:#d30102">/</span><span style="color:#d30102"><span style="color:#d30102">[-+*<span style="color:#cb4b16">\/</span>]</span></span><span style="color:#d30102">/</span>)
+  operator <span style="color:#859900">=</span> md.to_s 
+  operands <span style="color:#859900">=</span> expression.split(operator)
+  operand1, operand2 <span style="color:#859900">=</span> operands.map {|<span style="color:#268bd2">o</span>| evaluate(o, assignment_hash)}
+  <span style="color:#738a05;font-weight:700">case</span> operator
+    <span style="color:#738a05;font-weight:700">when</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>+<span style="color:#d01f1e">"</span></span>
+      operand1 <span style="color:#859900">+</span> operand2
+    <span style="color:#738a05;font-weight:700">when</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>-<span style="color:#d01f1e">"</span></span>
+      operand1 <span style="color:#859900">-</span> operand2
+    <span style="color:#738a05;font-weight:700">when</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>*<span style="color:#d01f1e">"</span></span>
+      operand1 <span style="color:#859900">*</span> operand2
+    <span style="color:#738a05;font-weight:700">when</span> <span style="color:#269186"><span style="color:#d01f1e">"</span>/<span style="color:#d01f1e">"</span></span>
+      operand1 <span style="color:#859900">/</span> operand2
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>And voila! We're done! Key feature of this is that it uses recursion (!) to evaluate the variables contained in a binary expression.</p>
+
+<p>So, now that messy, hacky file in the beginning has been streamlined into two methods.  Of course, this only works for very simple 'programs' and the next step is to make sure it passes some tests.  Then we can do fun things like add more features--order of operations, defining and calling functions, and so forth.  For the full commit history and code files, check out my <a href="https://github.com/Elffers/interpreted-language">Github repo.</a>
 </p>
 
 </div>

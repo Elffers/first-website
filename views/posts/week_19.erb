@@ -53,7 +53,8 @@ title: "Contributing to an Open Source Project, Part the First"
     rvm 1.9.2
   </code></p>
 
-  <p>A potential 'gotcha' with this is that sometimes you have to specify the patch version as well--that is, if you don't have the latest patched version of a major version.  For example, if I type in <code>rvm 2.0.0</code>, I get the following error:</p>
+  <p><strong>NOTE:</strong><br>
+   A potential 'gotcha' with this is that sometimes you have to specify the patch version as well--that is, if you don't have the latest patched version of a major version.  For example, if I type in <code>rvm 2.0.0</code>, I get the following error:</p>
   <p>
     <code>
       ruby-2.0.0-p451 is not installed.<br>
@@ -62,6 +63,9 @@ title: "Contributing to an Open Source Project, Part the First"
   </p>
   <p>
     Since I only have ruby-2.0.0-p247, I have to actually specify <code>rvm 2.0.0-p247</code> in order for my terminal to not get mad at me.
+  </p>
+  <p>
+    Okay. So now that my local machine knows what version of Ruby to deal with, how did my app know which version it wanted to use in the first place so it knew how to scold my computer? This brings us to:
   </p>
 
   <h2>Managing Different Versions of Ruby (in Rails)</h2>
@@ -93,9 +97,24 @@ title: "Contributing to an Open Source Project, Part the First"
   </p>
 
   <p>
-    Then <code>bundle</code> as usual and <em>voilà!</em> Your Rails app now knows what Ruby version to use.
+    Then <code>bundle</code> as usual and <em>voilà!</em> Your Rails app now knows what Ruby version to use.  Which brings us to the final point, which is:
   </p>
+  <h2>What the heck is Bundler, anyway?</h2>
+  <p>
+    I'd been running <code>bundle install</code> and <code>bundle update</code> so often that it's become almost* muscle memory.  But I never really understood what it did.  In fact, the <a href='https://github.com/Ada-Developers-Academy/daily-curriculum/blob/master/week04/friday/sinatra-practice.md'>first time we were taught about bundling</a>, we were explicitly told, and I quote:<blockquote>"Don't worry about the Gemfile, this part is still magic, we'll get into that in another lesson."</blockquote>
 
+    So, with all this version stuff, it finally became clear to me what bundler does. Stepping back a bit: When I first changed my version of Ruby in my terminal, I tried to run some gem--probably rubocop or flog or somesuch.  And lo and behold, I got the error:
+  </p>
+  <p><code>-bash: rubocop: command not found</code></p>
+  <p>
+    And that is how I learned that any gems you install on your machine are specific to the version of Ruby you are using at the time. Which means anytime you update your Ruby version, you have to update your gems as well.  The important thing is you do NOT want to use <code>sudo gem install</code>, because that will override all versions of your gem, and you'll get compatibility issues if you use the wrong version of Ruby or other gems that have dependencies. (For more details, read <a href='https://rvm.io/rubies/rubygems'>this</a>).
+  </p>
+  <p>
+    So what bundler does is it specifies which gems (and more importantly, their versions) to use in your current directory.  Basically, it creates walls around your app so that you don't have to worry about all the compatibility and dependency problems that come with having different versions of things installed.
+  </p>
+  <p>There. Not that magic, after all.</p>
+
+  <div class="footnote">*almost. There are always those frustrating times when I forget the simplest, most obvious things like bundle or rake db:migrate and so forth.  I can only assume these lapses will get more infrequent with experience. But then again, maybe not.</div>
 
 <h3>Further reading</h3>
 <ul>

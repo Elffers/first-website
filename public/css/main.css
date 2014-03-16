@@ -210,10 +210,11 @@ a:visited {
 
 .posts {
   display: block;
-  margin: 10px 200px;
+  margin-right: 50px;
   padding: 30px;
   text-align: justify;
-  width: 800px;
+  width: 60%;
+  float: right;
   border: 1px solid black;
   background-color: white;
 }

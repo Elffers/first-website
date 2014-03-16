@@ -38,8 +38,10 @@ class MyApp < Sinatra::Base
   end
 
   get '/blog' do
-    @body_class = "blog_body"
-    @current = @sorted_posts.first
+    @body_class = "post_body"
+    page = erb("/posts/#{@sorted_posts.first.first}".to_sym, layout: false)
+    page_body = page.split("\n\n", 2).last
+    @current = page_body
     erb :blog
   end
 
@@ -47,7 +49,8 @@ class MyApp < Sinatra::Base
     @body_class = "post_body"
     page = erb("/posts/#{params[:post_name]}".to_sym, layout: false)
     page_body = page.split("\n\n", 2).last
-    erb page_body
+    @current = page_body
+    erb :blog
   end
 
   # get "/blog/:post_name.:format?",  :provides => [:json] do
@@ -67,7 +70,6 @@ class MyApp < Sinatra::Base
         meta = YAML.load(html.split("\n\n", 2).first) #returns hash, keys are post names, values are hashes with dates
         @metadata[post] = meta #puts hash into hash
       end
-      p "META", @metadata
       @metadata
 
     end

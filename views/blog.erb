@@ -1,8 +1,8 @@
 <div class='blog_container'>
   <div class="posts_index">
     <% @sorted_posts.each do |post_path, metadata|%>
-      <h4><a class="post_link" href="/blog/<%= post_path %>"> <%= metadata["title"] %></a>
-      <span class="post_date"><%= metadata["date"].strftime("%B %d, %Y") %></span></h4>
+      <h3><a class="post_link" href="/blog/<%= post_path %>"> <%= metadata["title"] %></a>
+      <span class="post_date"><%= metadata["date"].strftime("%B %d, %Y") %></span></h3>
     <% end %>
   </div>
 </div>

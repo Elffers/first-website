@@ -27,6 +27,10 @@ class MyApp < Sinatra::Base
   #   {key:"hello"}.to_json
   # end
 
+  get '/projects' do
+    # @body_class = "portfolio_body"
+    erb :projects
+  end
   get '/portfolio' do
     @body_class = "portfolio_body"
     erb :portfolio

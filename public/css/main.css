@@ -1,6 +1,5 @@
 .index {
   background: url(/img/whiteumbrella.jpg);
-  /*background-size: 100% 100%; */
   background-position: 5% 70%;
 }
 
@@ -184,12 +183,6 @@ a:visited {
   margin:5px;
 }
 
-/*dinosaurs styling*/
-
-.dino_body {
-  /*background-color: black;*/
-}
-
 .dinosaurs {
   display: inline-block;
   margin: 10px;
@@ -220,8 +213,6 @@ a:visited {
 }
 
 .posts_index {
-  /*display: block;*/
-  /*margin-left: 50p;*/
   padding-left: 50px;
   text-align: justify;
   width: 25%;
@@ -230,7 +221,6 @@ a:visited {
 
 .current {
   background-color: white;
-  /*width: 70%;*/
   padding-right: 50px;
   float: left;
 }
@@ -264,7 +254,6 @@ a:visited {
 
 .blog_heading{
   color: white;
-  /*background: linear-gradient(to right, black, transparent);*/
   padding: 5px;
   width: 700px;
   font-variant: small-caps;
@@ -298,5 +287,4 @@ a:visited {
 
 .code {
   width: 70%;
-
 }

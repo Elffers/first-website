@@ -246,9 +246,9 @@ a:visited {
 }
 
 .post_date {
-  font-size: 20px;
+  font-size: 16px;
   font-variant: small-caps;
-  color: white;
+  color: #BDBDBD;
 }
 
 .posts h1 {

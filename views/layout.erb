@@ -4,18 +4,17 @@
     <script src="js/jquery-1.10.2.min.js"></script>
     <script src="js/lightbox-2.6.min.js"></script>
     <link href="css/lightbox.css" rel="stylesheet" />
-    <title>Hsing-Hui Hsu</title>
+    <title>So. Many. H's.</title>
   </head>
   <body class= "<%=@body_class%>">
 
-    <div class='container'> 
+    <div class='container'>
 
-      <div class='header'> 
+      <div class='header'>
         <h1> Hsing-Hui Hsu </h1>
-      </div> 
+      </div>
 
       <div><ul class='navigation'>
-        <li><a href= "/home"> Home</a></li>
         <li><a href= "/about"> About</a></li>
         <li>Portfolio
           <ul class="portfolio_menu">
@@ -25,10 +24,10 @@
         </li>
         <li><a href = "/blog">Musings</a></li>
       </ul></div>
-    
+
     </div>
 
-    <%= yield %> <!-- this injects specific erb file in layout file -->
-    
+    <%= yield %>
+
   </body>
 </html>

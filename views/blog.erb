@@ -1,10 +1,7 @@
- <!-- <div class= "blog_heading"> Musings</div> -->
-  <div class="posts_index">
-    <% @sorted_posts.each do |post, array|%>
-      <span class="post_date"><%= array["date"].strftime("%B %d, %Y:") %><span>
-      <a class="post_link" href="/blog/<%= post%>"> <%= array["title"] %></a>
-      <br>
-    <% end %>
-  </div>
-
-</body>
+<div class="posts_index">
+  <% @sorted_posts.each do |post_path, metadata|%>
+    <span class="post_date"><%= metadata["date"].strftime("%B %d, %Y:") %><span>
+    <a class="post_link" href="/blog/<%= post_path %>"> <%= metadata["title"] %></a>
+    <br>
+  <% end %>
+</div>

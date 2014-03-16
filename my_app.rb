@@ -38,7 +38,7 @@ class MyApp < Sinatra::Base
   end
 
   get '/blog' do
-    @body_class = "post_body"
+    @body_class = "blog_body"
     page = erb("/posts/#{@sorted_posts.first.first}".to_sym, layout: false)
     page_body = page.split("\n\n", 2).last
     @current = page_body
@@ -46,7 +46,7 @@ class MyApp < Sinatra::Base
   end
 
   get "/blog/:post_name" do
-    @body_class = "post_body"
+    @body_class = "blog_body"
     page = erb("/posts/#{params[:post_name]}".to_sym, layout: false)
     page_body = page.split("\n\n", 2).last
     @current = page_body

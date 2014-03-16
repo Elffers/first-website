@@ -1,0 +1,36 @@
+date: 2013-12-15
+title: "Observations from the Field"
+
+<div class="posts">
+  <h1>Observations from the Field</h1><hr>
+  <p>
+    In our first real Rails project, in which we had to create a cookbook app, we had the option of having a user sign-in feature.  The suggested gem was devise, but we ran out of time before I got it to work.  So naturally, with this week's project, I was keen on tacking user authentication again.  <a href="http://railscasts.com/episodes/270-authentication-in-rails-3-1">This</a> tutorial helped a great deal in buildling UA from scratch, though it turns out that having generated most of our models/controllers/routes using scaffold in the cookbook project was, ironically, a crutch.
+  </p>
+
+  <p>
+    After hacking through a first attempt at implementation, I decided to try again...and again. I ended up writing code for user authentication in two other apps, without using scaffold or devise, and here are the main things I learned:
+  </p>
+
+  <ol>
+    <li>
+      Scaffold does a really good job at defining and setting up routes.  I, on the other hand, usually do a pretty godawful hacky job at defining and setting up routes.
+    </li>
+    <li>
+      There is an art to Googling.  This was the first time I really relied heavily on lookng up online documentation for things I ran into, because I felt like a twit pawing at people on Campfire for help all the time. It's getting easier, but I am yet but a grasshopper in the ways of Google-fu.
+    </li>
+    <li>
+      How to keep work locally on separate branches of git, push to those branches, and submit pull requests, like real programmers do in the wild.
+    </li>
+    <li>
+      The difference between certain ActiveRecord methods.  For example, ".where" returns an ActiveRecord collection, which is sort of like an array but not really, whereas ".find" returns just one actual ActiveRecord...record.  Sometimes, this requires you to require mixing in the Enumerable class into an ActiveRecord model class to you can do things to an ActiveRecord collection like you would an Enumerable in Ruby.  This then allows you to do things like call ".build_object" on another object, and it's all very sparkly and magical and I obviously understand this all impeccably.
+    </li>
+    <li>
+      My approach to coding, at least at this stage of my education, is apparently to crash early and often.  Echoes of similar advice from earlier talks (maybe Julie Pagano's?) are now starting to solidify as I have relevant experiences.  More than any other week, I've really just let go of the wall and gone spinning into the middle of the ice rink so I can figure out how to make it go.  I fall down a lot. But the important thing is, I'm also skating a lot.  In all directions, crashingly.
+    </li>
+    <li>
+      Not everyone takes the crash test approach to learning, and I shouldn't always drag them along into crashing with me.  More importantly, I shouldn't crash into bits of code other people are working on.  People get much mad and have very feelings <a href= "http://memegenerator.net/So-Doge">(such wow)</a> when you encroach on bits of their code. Which leads me to the last and maybe most important Lesson of the Week:
+    </li>
+    <li>Communication is important.
+    </li>
+  </ol>
+</div>

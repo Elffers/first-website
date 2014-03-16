@@ -4,7 +4,7 @@ title: "H is for Hstore"
 <div class="posts">
   <h1>Using Postgres, like, for Real</h1>
   <p>
-    The vast majority of Rails apps we build are hosted on Heroku, which uses postgresql to store databases.  Since starting a new project by running <code>rails new</code> defaults to using sqlite3, the way kind of hacked around this problem was by simply using sqlite in development and testing, and postgres in production, like so:
+    The vast majority of Rails apps we build are hosted on Heroku, which uses PostgreSQL to store database tables.  Since starting a new project by running <code>rails new</code> defaults to using SQLite3, the way kind of hacked around this problem was by simply using SQLite in development and testing, and postgreSQL in production, like so:
   </p>
   <p>
     <code>
@@ -31,7 +31,7 @@ title: "H is for Hstore"
       &nbsp;&nbsp;host: localhost<br><br>
       test:<br>
       &nbsp;&nbsp;adapter: postgresql<br>
-      &nbsp;&nbsp;database: test<br>
+      &nbsp;&nbsp;database: appname_test<br>
       &nbsp;&nbsp;pool: 5<br>
       &nbsp;&nbsp;timeout: 5000<br>
       &nbsp;&nbsp;host: localhost<br>
@@ -39,14 +39,108 @@ title: "H is for Hstore"
   </p>
 
   <p>
-    You don't need to do anything with the production database, since Heroku sets all that up for you.  Once your <code>database.yml</code> file is updated, run <code>rake db:create</code> in your command line, migrate if necessary, and boom! Your app is now configured to postgres. (<em>Reminder: After you deploy your app to Heroku, don't forget to run</em> <code>heroku run rake db:migrate</code>. )
+    You don't need to do anything with the production database, since Heroku sets all that up for you.  Once your <code>database.yml</code> file is updated, run <code>rake db:create</code> in your command line, migrate if necessary, and boom! Your app is now configured to postgreSQL.
   </p>
-  <h2>So now that I'm using Postgres, what is it good for?</h2>
+  <p><em>Reminder: After you deploy your app to Heroku, don't forget to run</em> <code>heroku run rake db:migrate</code> !
+  </p>
+
+  <h2>So now that I'm using PostgreSQL, what is it good for?</h2>
 
   <p>
+    <!-- TODO: post on relational v non relational DBs -->
+    While postgreSQL lives in the world of relational databases, you can also get the benefits of a schema-less database through a nifty feature called <a href='http://www.postgresql.org/docs/9.1/static/hstore.html'>HStore</a>. Before jumping straight into a technical explanation of Hstore, let's take a few steps back and look at how we usually work with model data in Rails.
+  </p>
+  <p>
+    Suppose you have a user model in your application, and you want to give a user the option of receiving emails from your application.  In your schema, you might have a column named "Email Preference" set to a boolean.  But suppose there are many different kinds of emails a user could receive, such as registration confirmation, or event updates, or new events.  One way to do it using our traditional relational database schema is to have another model named "Preferences" that belongs to a user. In other words, you'd have something like this in your <code>app/models/person.rb</code> and <code>app/models/preference.rb</code> files:
   </p>
 
+  <div class='code'><pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">User &lt; ActiveRecord::Base</span></span>
+    has_one <span style="color:#269186">:preference</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  </pre></div>
 
+  <div class='code'><pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">Preference &lt; ActiveRecord::Base</span></span>
+    belongs_to <span style="color:#269186">:user</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  </pre></div>
+
+  <p>Then you'd have the following migrations:</p>
+
+  <div class='code'>
+    <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">AddColumnsToUser &lt; ActiveRecord::Migration</span></span>
+    <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">change</span>
+      add_column <span style="color:#269186">:users</span>, <span style="color:#269186">:name</span>, <span style="color:#269186">:string</span>
+      add_column <span style="color:#269186">:users</span>, <span style="color:#269186">:email</span>, <span style="color:#269186">:string</span>
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  </pre>
+  </div>
+
+  <div class='code'>
+    <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">AddColumnsToPreferences &lt; ActiveRecord::Migration</span></span>
+    <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">change</span>
+      add_column <span style="color:#269186">:preferences</span>, <span style="color:#269186">:registration</span>, <span style="color:#269186">:boolean</span>
+      add_column <span style="color:#269186">:preferences</span>, <span style="color:#269186">:new_event</span>, <span style="color:#269186">:boolean</span>
+      add_column <span style="color:#269186">:preferences</span>, <span style="color:#269186">:user_id</span>, <span style="color:#269186">:integer</span>
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  </pre>
+</div>
+
+  <p>
+    So now, to get a Person object's language preference, you could call <code>.preference.language</code> on a person object. That's all well and good, but suppose you want to add another field to a person's preferences? That requires adding another migration, changing the schema, etc. etc...
+  </p>
+
+  <p>
+    With Hstore, however, you can eliminate the need for generating a whole other table associated to the User model.  Basically, hstore allows you to store data in a table column as a hash.  Better yet, you can just add key-value pairs dynamically, without having to plan them out in your database schema first.  In other words, suppose one user only wants emails for new events.  Then that user's preferences would be stored as the hash <code>{ new_event: true }</code>.  But suppose another user wants to receive emails for new events as well as promos.  Then his/her preferences can be stored as the hash <code>{ new_event: true, promos: true }</code>.
+  </p>
+
+  <h2>Setting up Hstore</h2>
+  <p>
+    Assuming you've followed the steps above for setting up postgreSQL, setting up your app to use hstore is easy:
+    <ol>
+      <li>In your <code>application.rb</code> file, add the following line:
+        <div class='code'><pre style="background:#042029;color:#839496">config.active_record.schema_format <span style="color:#859900">=</span> <span style="color:#269186">:sql</span></pre></div>
+      </li>
+      <li>
+        In your terminal, generate a migration the usual way:
+        <p><code>rails g migration add_hstore</code></p>
+        Then, in the migration file, enable the hstore extension:
+        <div class='code'>
+          <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">AddHstore &lt; ActiveRecord::Migration</span></span>
+  <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">up</span>
+    execute <span style="color:#269186"><span style="color:#d01f1e">'</span>CREATE EXTENSION hstore<span style="color:#d01f1e">'</span></span>
+  <span style="color:#738a05;font-weight:700">end</span>
+
+  <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">down</span>
+    execute <span style="color:#269186"><span style="color:#d01f1e">'</span>DROP EXTENSION hstore<span style="color:#d01f1e">'</span></span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+        </div>
+      </li>
+      <li>Finally, add a column in your model that specifies hstore as the column type:
+        <div class='code'>
+  <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">AddHstoreColumnToUsers &lt; ActiveRecord::Migration</span></span>
+  <span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">change</span>
+    add_column <span style="color:#269186">:users</span>, <span style="color:#269186">:preferences</span>, <span style="color:#269186">:hstore</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span></pre>
+</div>
+      </li>
+    </ol>
+  </p>
+
+  <p>To access the keys in the preferences hash, you can set them through a method called store_accessor in your model:</p>
+    <div>
+      <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">User &lt; ActiveRecord::Base</span></span>
+  store_accessor <span style="color:#269186">:preferences</span>, <span style="color:#269186">:registration</span>, <span style="color:#269186">:new_event</span>, <span style="color:#269186">:event_update</span>, <span style="color:#269186">:promos</span>
+<span style="color:#738a05;font-weight:700">end</span>
+
+</pre>
+    </div>
+<p>This allows you to simply call any of the keys as you would an attribute on the user object. Easy!</p>
+  </p>
   <h3>Further reading</h3>
   <ul>
     <li><a href="http://jes.al/2013/11/using-postgres-hstore-rails4/">Using Hstore in Rails 4</a></li>

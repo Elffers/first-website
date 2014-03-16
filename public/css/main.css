@@ -33,12 +33,12 @@ body {
 .about {
   border: 0px;
   background: url(/img/rainbow.jpeg);
-  background-size: cover; 
+  background-size: cover;
   background-position: 25% 35%;
 }
 
 .about_container {
-  
+
   width: 1200px;
   margin: 70px 50px;
 }
@@ -266,7 +266,7 @@ a:visited {
 }
 
 .post_body{
-  background: url(/img/steps.jpg); 
+  background: url(/img/steps.jpg);
   background-size: cover;
   background-position: right bottom;
 }
@@ -287,4 +287,9 @@ a:visited {
 
 .footnote {
   font: small-caption;
+}
+
+.code {
+  width: 70%;
+
 }

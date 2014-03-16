@@ -1,9 +1,55 @@
-date: 2014-02-25
+date: 2014-03-07
 title: "H is for Hstore"
 
 <div class="posts">
-  I
-  <a href="http://jes.al/2013/11/using-postgres-hstore-rails4/"></a>
-  <a href="http://railscasts.com/episodes/345-hstore"></a>
+  <h1>Using Postgres, like, for Real</h1>
+  <p>
+    The vast majority of Rails apps we build are hosted on Heroku, which uses postgresql to store databases.  Since starting a new project by running <code>rails new</code> defaults to using sqlite3, the way kind of hacked around this problem was by simply using sqlite in development and testing, and postgres in production, like so:
+  </p>
+  <p>
+    <code>
+      <em>(in Gemfile)</em><br><br>
+      group :development, :test do<br>
+      &nbsp;&nbsp;gem "sqlite3"<br>
+      end<br><br>
 
+      group :production do<br>
+      &nbsp;&nbsp;gem "pg"<br>
+      end
+    </code>
+  </p>
+  <p>
+    This is clearly not ideal--it's usually best practice to use the same kind of database in development as you will in production.  So, to setup your Rails app to use postgres for real, simply require the gem 'pg' in your Gemfile without specifying a group.  Then, in your <code>config/database.yml</code> file, change the adapter and database lines like so:
+  </p>
+  <p>
+    <code>
+      development:<br>
+      &nbsp;&nbsp;adapter: postgresql<br>
+      &nbsp;&nbsp;database: appname_development<br>
+      &nbsp;&nbsp;pool: 5<br>
+      &nbsp;&nbsp;timeout: 5000<br>
+      &nbsp;&nbsp;host: localhost<br><br>
+      test:<br>
+      &nbsp;&nbsp;adapter: postgresql<br>
+      &nbsp;&nbsp;database: test<br>
+      &nbsp;&nbsp;pool: 5<br>
+      &nbsp;&nbsp;timeout: 5000<br>
+      &nbsp;&nbsp;host: localhost<br>
+    </code>
+  </p>
+
+  <p>
+    You don't need to do anything with the production database, since Heroku sets all that up for you.  Once your <code>database.yml</code> file is updated, run <code>rake db:create</code> in your command line, migrate if necessary, and boom! Your app is now configured to postgres. (<em>Reminder: After you deploy your app to Heroku, don't forget to run</em> <code>heroku run rake db:migrate</code>. )
+  </p>
+  <h2>So now that I'm using Postgres, what is it good for?</h2>
+
+  <p>
+  </p>
+
+
+  <h3>Further reading</h3>
+  <ul>
+    <li><a href="http://jes.al/2013/11/using-postgres-hstore-rails4/">Using Hstore in Rails 4</a></li>
+    <li><a href="http://railscasts.com/episodes/345-hstore">Railscast episode on Hstore</a></li>
+  </ul>
 </div>

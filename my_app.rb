@@ -39,6 +39,7 @@ class MyApp < Sinatra::Base
 
   get '/blog' do
     @body_class = "blog_body"
+    @current = @sorted_posts.first
     erb :blog
   end
 

@@ -1,0 +1,86 @@
+date: 2014-03-29
+title: "In which H experiences her first Technical Interview Question"
+
+<div class="posts">
+  <h1>In which H experiences her first Technical Interview Question</h1><hr>
+  <p>
+    This week, we had our first round of interviews for the <strike>impending</strike> upcoming internships. Though the interviews were mostly a way for us to get to know the sponsoring companies a little better, Zillow actually gave a technical question:
+  </p>
+  <p>
+    <em>Suppose you have an unsorted array of integers, e.g., <code>[3, 1, 5, 7, 10, 6, 9]</code>.How would you find all pairs of elements in the array whose sum equals 10? </em>
+  </p>
+
+  <p>After asking if we were only to take into account positive integers, my first pass was as follows:
+    <!-- def complement(array, sum)
+      operands = array.select {|num| num <= sum}
+      complements = []
+      operands.each do |operand|
+        complement = sum - operand
+        if array.include? complement
+          complements << complement
+        end
+      end
+      operands.zip(complements)
+    end -->
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">complement</span>(array, sum)</span>
+  operands <span style="color:#859900">=</span> array.select {|<span style="color:#268bd2">num</span>| num <span style="color:#859900">&lt;=</span> sum}
+  complements <span style="color:#859900">=</span> []
+  operands.each <span style="color:#859900">do </span>|<span style="color:#268bd2">operand</span>|
+    complement <span style="color:#859900">=</span> sum <span style="color:#859900">-</span> operand
+    <span style="color:#738a05;font-weight:700">if</span> array.include? complement
+      complements <span style="color:#859900">&lt;&lt;</span> complement
+    <span style="color:#738a05;font-weight:700">end</span>
+  <span style="color:#738a05;font-weight:700">end</span>
+  operands.zip(complements)
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+  </p>
+  <p>
+    A little messy, but I was a bit nervous, especially as we weren't expecting an actual technical question at all. Mostly, I was afraid that I would be docked (figuratively) for having so many loops.  Since my interview was cut short due to a scheduling misunderstanding, I didn't have time to explain how I would refactor this solution to utilize a set or hash to optimize efficiency.  So, when I got home I figured I'd try to clean up my solution a bit.
+  </p>
+  <p>
+    Another major problem, aside from inefficiency, is that there is a nil value returned as the complement of an element in the array that equals the sum itself. For example, the above code returns:
+  </p>
+  <p>
+    <code>
+      $ array = [3, 1, 5, 7, 10, 6, 9]<br>
+      $ complement(array, 10)<br>
+      => [[3, 7], [1, 9], [5, 5], [7, 3], [10, 1], [6, nil], [9, nil]]<br>
+    </code>
+  </p>
+
+  <p>
+    I decided to return a hash rather than an array, with elements of the given array as keys and its complement set as the value. Since Ruby's <code>include?</code> method <a href="http://apidock.com/ruby/Array/include%3F">iterates through the entire array</a>, having to call it from within an iteration of the array gives a runtime complexity of O(n<sup>2</sup>). To improve efficiency, I put the elements in a set, which has the same constant time lookup as hashes. Finally, to minimize the number of required arguments, I opened up the Array class and stuck the method in there:
+  </p>
+<!-- class Array
+  require 'set'
+  def complements(sum)
+    elements = Set.new(self)
+    complements = {}
+    self.each do |num|
+      complement = sum - num
+      complements[num] = complement if elements.include?(complement)
+    end
+    complements
+  end
+end -->
+  <p>
+    <pre style="background:#042029;color:#839496"><span style="color:#748b00"><span style="color:#748b00">class</span> <span style="color:#a57800">Array</span></span>
+  <span style="color:#748b00">require</span> <span style="color:#269186"><span style="color:#d01f1e">'</span>set<span style="color:#d01f1e">'</span></span>
+  <span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">complements</span>(sum)</span>
+    elements <span style="color:#859900">=</span> <span style="color:#a57800">Set</span>.<span style="color:#748b00">new</span>(<span style="color:#469186">self</span>)
+    complements <span style="color:#859900">=</span> {}
+    <span style="color:#469186">self</span>.each <span style="color:#859900">do </span>|<span style="color:#268bd2">num</span>|
+      complement <span style="color:#859900">=</span> sum <span style="color:#859900">-</span> num
+      complements[num] <span style="color:#859900">=</span> complement <span style="color:#738a05;font-weight:700">if</span> elements.include?(complement)
+    <span style="color:#738a05;font-weight:700">end</span>
+    complements
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+  </p>
+  <p>
+    In spite of the sheer surprise of being given a technical question and the abbreviated interview time, I actually found the problem kind of fun.  I'd be curious to see what other kinds of problems are given at interviews.
+  </p>
+
+</div>

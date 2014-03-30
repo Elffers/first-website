@@ -288,3 +288,8 @@ a:visited {
 .code {
   width: 70%;
 }
+
+#disqus_thread {
+  width: 70%;
+  background-color: white;
+}

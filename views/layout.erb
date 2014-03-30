@@ -21,7 +21,10 @@
       </div>
     </div>
 
-    <%= erb @current if @current %>
+    <div class='post_container'>
+      <%= erb @current if @current %>
+    </div>
+
     <%= yield %>
 
   </body>

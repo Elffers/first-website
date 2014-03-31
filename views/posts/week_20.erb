@@ -50,7 +50,7 @@ title: "In which H experiences her first Technical Interview Question"
   </p>
 
   <p>
-    I decided to return a hash rather than an array, with elements of the given array as keys and its complement set as the value. Since Ruby's <code>include?</code> method <a href="http://apidock.com/ruby/Array/include%3F">iterates through the entire array</a>, having to call it from within an iteration of the array gives a runtime complexity of O(n<sup>2</sup>). To improve efficiency, I put the elements in a set, which has the same constant time lookup as hashes. Finally, to minimize the number of required arguments, I opened up the Array class and stuck the method in there:
+    I decided to return a hash rather than an array, with elements of the given array as keys and its complement set as the value. Since Ruby's <code>include?</code> method <a href="http://apidock.com/ruby/Array/include%3F">iterates through the entire array</a>, having to call it from within an iteration of the array gives a runtime complexity of O(n<sup>2</sup>). To improve efficiency, I put the elements in a set, which has the same constant time lookup as hashes. Then, I added a conditional to the iteration to avoid repeat pairs. Finally, to minimize the number of required arguments, I opened up the Array class and stuck the method in there:
   </p>
 <!-- class Array
   require 'set'
@@ -59,7 +59,10 @@ title: "In which H experiences her first Technical Interview Question"
     complements = {}
     self.each do |num|
       complement = sum - num
-      complements[num] = complement if elements.include?(complement)
+      elements = elements.delete(num)
+      if elements.include?(complement)
+        complements[num] = complement
+      end
     end
     complements
   end
@@ -72,7 +75,10 @@ end -->
     complements <span style="color:#859900">=</span> {}
     <span style="color:#469186">self</span>.each <span style="color:#859900">do </span>|<span style="color:#268bd2">num</span>|
       complement <span style="color:#859900">=</span> sum <span style="color:#859900">-</span> num
-      complements[num] <span style="color:#859900">=</span> complement <span style="color:#738a05;font-weight:700">if</span> elements.include?(complement)
+      elements <span style="color:#859900">=</span> elements.delete(num)
+      <span style="color:#738a05;font-weight:700">if</span> elements.include?(complement)
+        complements[num] <span style="color:#859900">=</span> complement
+      <span style="color:#738a05;font-weight:700">end</span>
     <span style="color:#738a05;font-weight:700">end</span>
     complements
   <span style="color:#738a05;font-weight:700">end</span>

@@ -3,21 +3,117 @@ title: "Ruby v. Python"
 
 <div class="posts">
   <h1>Ruby v. Python</h1><hr>
+  <p>
+    This week, we were given free rein to explore side projects and interests.  Since many of the ADA sponsoring companies use Python, I figured it was a good opportunity to see what it was all about.
+  </p>
+  <p>
+    Fortunately, I had had already gotten my feet a tiny bit wet in Python before ADA started, but now that I feel more comfortable in Ruby, picking up Python was even easier than I remembered.  Since <a href='http://projecteuler.net/'>Project Euler</a> proved to be so helpful in getting my Ruby legs, I decided to revisit the problems aboard Python. You can see my attempts on my <a href= 'https://github.com/Elffers/Project_Euler'>GitHub</a>, but I wanted to compare the two languages a bit here.
+  </p>
 
+  <h2>Truthiness</h2>
+  <p>
+    One interesting thing about Python is the concept of <a href='https://docs.python.org/release/2.5.2/lib/truth.html'>Truth values</a>. Anything that evaluates to zero, or empty strings and arrays are considered false. This makes writing conditionals quite a bit different, and one might argue, more elegant.  For example, if we were to write a function in Ruby to check whether an integer is even, you might have something like:
+  </p>
 
-<!-- def is_even(n):
-    if n % 2:
-        print "nope"
-    else:
-        print "yep" -->
-
-
-</div>
-
-def is_even(n)
+<!-- def is_even(n)
   if n % 2 == 0
     puts "yep"
   else
     puts "nope"
   end
-end
+end -->
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">is_even</span>(n)</span>
+  <span style="color:#738a05;font-weight:700">if</span> n <span style="color:#859900">%</span> <span style="color:#269186">2</span> <span style="color:#859900">==</span> <span style="color:#269186">0</span>
+    puts <span style="color:#269186"><span style="color:#d01f1e">"</span>yep<span style="color:#d01f1e">"</span></span>
+  <span style="color:#738a05;font-weight:700">else</span>
+    puts <span style="color:#269186"><span style="color:#d01f1e">"</span>nope<span style="color:#d01f1e">"</span></span>
+  <span style="color:#738a05;font-weight:700">end</span>
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+<p>
+  Whereas in Python, a zero remainder automatically returns false, so you can simply put:
+</p>
+<!-- def is_even(n):
+    if n % 2:
+        print "nope"
+    else:
+        print "yep" -->
+<pre style="background:#002240;color:#fff"><span style="color:#ffee80">def</span> <span style="color:#fd0">is_even</span><span style="color:#e1efff">(</span><span style="color:#ccc">n</span><span style="color:#e1efff">)</span><span style="color:#e1efff">:</span>
+    <span style="color:#ff9d00">if</span> n <span style="color:#ff9d00">%</span> <span style="color:#ff628c">2</span>:
+        <span style="color:#ff9d00">print</span> <span style="color:#3ad900">"</span>nope<span style="color:#3ad900">"</span>
+    <span style="color:#ff9d00">else</span>:
+        <span style="color:#ff9d00">print</span> <span style="color:#3ad900">"</span>yep<span style="color:#3ad900">"</span>
+</pre>
+
+<p>
+  In problem 3 of Project Euler, you are asked to find the largest prime factor of the number 600851475143.  In my inital pass, I had a function to check if one number was a factor of another:
+</p>
+<!-- def factor(factor, number):
+    return number % factor == 0 -->
+
+<pre style="background:#002240;color:#fff"><span style="color:#ffee80">def</span> <span style="color:#fd0">factor</span><span style="color:#e1efff">(</span><span style="color:#ccc">factor</span>, <span style="color:#ccc">number</span><span style="color:#e1efff">)</span><span style="color:#e1efff">:</span>
+    <span style="color:#ff9d00">return</span> number <span style="color:#ff9d00">%</span> factor <span style="color:#ff9d00">==</span> <span style="color:#ff628c">0</span>
+</pre>
+
+<p>However, using truthiness, this can be refactored to:</p>
+<!-- def factor(factor, number):
+    return not number % factor -->
+
+<pre style="background:#002240;color:#fff"><span style="color:#ffee80">def</span> <span style="color:#fd0">factor</span><span style="color:#e1efff">(</span><span style="color:#ccc">factor</span>, <span style="color:#ccc">number</span><span style="color:#e1efff">)</span><span style="color:#e1efff">:</span>
+    <span style="color:#ff9d00">return</span> <span style="color:#ff9d00">not</span> number <span style="color:#ff9d00">%</span> factor
+</pre>
+
+  <h2>Filtering arrays and Generator expressions</h2>
+  <p>
+    In Ruby, there are several ways to grab selected elements from an array, usually requiring a block. Going back to Problem 3, I used <code>.select</code> to generate an array of all the possible candidates for prime factors of a given number n:
+  </p>
+
+  <!-- def factors(n)
+    range = (2..Math.sqrt(n))
+    range.select {|factor| n % factor == 0}
+  end -->
+<pre style="background:#042029;color:#839496"><span style="color:#708284"><span style="color:#738a05;font-weight:700">def</span> <span style="color:#268bd2">factors</span>(n)</span>
+  range <span style="color:#859900">=</span> (<span style="color:#269186">2</span>..<span style="color:#a57800">Math</span>.sqrt(n))
+  range.select {|<span style="color:#268bd2">factor</span>| n <span style="color:#859900">%</span> factor <span style="color:#859900">==</span> <span style="color:#269186">0</span>}
+<span style="color:#738a05;font-weight:700">end</span>
+</pre>
+
+<p>
+  In Python, the closest thing I could find to <code>.select</code> was a built-in function called <a href='http://docs.python.org/2.7/tutorial/datastructures.html#functional-programming-tools'>filter</a>. Rather than using a block to select or filter out the desired elements, it requires a separately defined function.  So, to get a list of factors of a given number n, I first defined a function to check if a number was a factor of n at all, then used that as the first argument in the filter.  It's pretty similar to <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach'>callback functions in Javascript</a>, actually.
+</p>
+
+<!-- def factor_of_n(x): return n % x == 0
+
+def factors_of_n(x):
+  return filter(factor_of_n, range(2, int(sqrt(x)))) -->
+<pre style="background:#002240;color:#fff"><span style="color:#ffee80">def</span> <span style="color:#fd0">factor_of_n</span><span style="color:#e1efff">(</span><span style="color:#ccc">x</span><span style="color:#e1efff">)</span><span style="color:#e1efff">:</span>
+    <span style="color:#ff9d00">return</span> n <span style="color:#ff9d00">%</span> x <span style="color:#ff9d00">==</span> <span style="color:#ff628c">0</span>
+
+<span style="color:#ffee80">def</span> <span style="color:#fd0">factors_of_n</span><span style="color:#e1efff">(</span><span style="color:#ccc">x</span><span style="color:#e1efff">)</span><span style="color:#e1efff">:</span>
+    <span style="color:#ff9d00">return</span> <span style="color:#ffee80"><span style="color:#ffb054">filter</span><span style="color:#e1efff">(</span><span style="color:#ffee80">factor_of_n, <span style="color:#ffee80"><span style="color:#ffb054">range</span><span style="color:#e1efff">(</span><span style="color:#ffee80"><span style="color:#ff628c">2</span>, <span style="color:#ffee80"><span style="color:#80ffbb">int</span><span style="color:#e1efff">(</span><span style="color:#ffee80"><span style="color:#ffee80">sqrt<span style="color:#e1efff">(</span><span style="color:#ffee80">x</span><span style="color:#e1efff">)</span></span></span><span style="color:#e1efff">)</span></span></span><span style="color:#e1efff">)</span></span></span><span style="color:#e1efff">)</span></span>
+</pre>
+
+<p>
+  There's another way to generate lists in Python, however. <strike>Due to the limitations of the magical elves that run around inside computer</strike> For reasons of efficiency, building a list with a generator expression is much faster.
+</p>
+
+<!-- def factors(x):
+    factors = [
+      i for i in range(2, x)
+      if factor (i, x)
+    ]
+    return factors -->
+<pre style="background:#002240;color:#fff"><span style="color:#ffee80">def</span> <span style="color:#fd0">factors</span><span style="color:#e1efff">(</span><span style="color:#ccc">x</span><span style="color:#e1efff">)</span><span style="color:#e1efff">:</span>
+    factors <span style="color:#ff9d00">=</span> <span style="color:#e1efff">[</span>
+      i <span style="color:#ff9d00">for</span> i <span style="color:#ff9d00">in</span> <span style="color:#ffee80"><span style="color:#ffb054">range</span><span style="color:#e1efff">(</span><span style="color:#ffee80"><span style="color:#ff628c">2</span>, x</span><span style="color:#e1efff">)</span></span>
+      <span style="color:#ff9d00">if</span> <span style="color:#ffee80">factor <span style="color:#e1efff">(</span><span style="color:#ffee80">i, x</span><span style="color:#e1efff">)</span></span>
+    <span style="color:#e1efff">]</span>
+    <span style="color:#ff9d00">return</span> factors
+</pre>
+<h3>Further reading</h3>
+  <ul>
+    <li><a href="https://wiki.python.org/moin/Generators">Python Generators</a></li>
+    <li>
+      <a href='http://python-history.blogspot.com/2010/06/from-list-comprehensions-to-generator.html'>Real blog post about generators, by a real programmer</a>
+    </li>
+</div>

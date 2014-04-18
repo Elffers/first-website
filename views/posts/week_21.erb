@@ -1,0 +1,51 @@
+date: 2014-04-18
+title: "Contributing to an Open Source Project, Part the Second"
+
+<div class="posts">
+  <h1>Contributing to an Open Source Project, Part the Second</h1><hr>
+  <p>
+    A few things I learned about contributing to open source: the good, the bad, and the ugly.
+    <h2>The Good</h2>
+    <ul>
+      <li><strong>Commit early and often.</strong> Too often when coding, I find myself so much in the zone that by the time I've realized I hadn't made any commits yet I've changed a bunch of different unrelated issues across multiple files. Inevitably, I just <code>git add .</code> and keep moving. <em>This is bad.</em> Having clearly organized steps to trace back changes not only makes it easier for other humans to review, but forces you to be more aware of your own development process.
+      </li>
+      <li><strong>Make small pull requests.</strong> An extension of the first item, addressing only a single issue in a pull request makes your code easier to review and accept. It's easy to get carried away with wanting to fix everything at once, but again--open source projects are a community effort, and as such, any changes need to be as bite-sized as possible. As explained in a <a href='http://hhh-sinatra.herokuapp.com/blog/week_18'>previous post</a>, I ran into an early problem of getting the legacy to code to run on my local machine at all, which led to changing versions of Ruby and fixing a bunch of Gemfile dependencies. Once that was accomplished, I made the mistake of continuing to work on the actual issue I intended to address on top of that. What I should have done was send the version changes as a separate pull request, then switch to a different branch and work on the other issue there. Then, if the previous PR was accepted, it'd then be easier to push changes from the other branch.
+      </li>
+      <li><strong>Proofread, proofread, proofread.</strong> For many of the projects we've built in ADA, it's easy to be careless or undisciplined about code style. However, vestiges of abandoned code or even innocuous comments can be confusing, and only add to code noise. I ended up refactoring my pull request over and over again, and it not only made my code better and smarter, it actually was kind of <a href='http://kytrinyx.com/talks/therapeutic-refactoring'>therapeutic</a>.
+      </li>
+    </ul>
+    <h2>The Bad</h2>
+    <ul>
+      <li><strong>If a specification is unclear, ask. Then ask again. Even if you think it's clear, ask to make sure.</strong> You'll save yourself a lot of grief if you know exactly what the project is asking for.  Even if you think you know what it's asking for, ask again, just to make sure. Because the reality is, people who open source their projects are not benevolent taskmasters with a team of secretaries to do and document their bidding. They are humans who are usually too busy to really lay out the details of what it is they want in writing, or even in person. Even though I thought I understood the task, and even thought I had the go-ahead from the person who requested task, I ended up doing a lot of work that wasn't really what they wanted after all, due to miscommunication.
+      </li>
+    </ul>
+    <h2>The Ugly</h2>
+    <ul>
+      <li><strong>Thicken your skin.</strong> Because here's the sad truth: Matz is nice, but not everyone else is always nice. My first experience contributing to open source, to be blunt, sucked. I had thought originally it would be a great way to be more involved in the Ruby community, but the pull request, on which I spent a significant number of hours on top of ADA's already exhausting schedule, was ultimately rejected. And while I was prepared to handle rejection, I was not prepared for the curt manner in which it was rejected. To be fair, much of the feedback I got on my PR was helpful and made me grow up a lot as a coder. However, there was also feedback that came across as belittling, and made me feel incredibly unwelcome.
+      </li>
+    </ul>
+  </p>
+  <p>
+    I was recently asked the following:
+  </p>
+
+  <p><cite>
+    One thing that interests me is the notion of making programming accessible to non-programmers. I'm not talking about ... ways to make it a little easier to learn. Rather, what would "programming" look like if it wasn't always invented and furthered by programmers? Could it look like poetry? Could it feel like firing a clay pot?
+  </cite></p>
+
+  <p>
+    As with everyone in ADA, my background was not in computer science. I majored in the performing arts, inadvertantly picking up a degree in French literature along the way. Transitioning into the tech world has been, unsurprisingly, a challenge. Not that there aren't similarities--there is certainly an aesthetic that exists in the psychological landscape of both artists and programmers. Yet an integral part of what makes great art is that it somehow reflects human civility, and grace. And that is perhaps what I miss the most in the tech world. Many artists speak of putting themselves into their work, embuing their music or sculpture or dance with their better selves. There is, of course, a sense of that in coding as well, but it seems too often overshadowed by a tacit intellectual one-upping that is inextricably bound to individual ego.</p>
+
+  <p>
+    Don't get me wrong--the music world is lousy with divas of all sizes. Orchestra hierarchies are famously perilous to climb. There is top-dog shaming that occurs at all levels. But the most salient difference I have noticed is that, among programmers, there seem to be no qualms about sacrificing civility to intellectual ego-stroking, whereas abandoning the path of gracious behavior is immediately obvious to those in the fine arts.
+  </p>
+
+  <hr>
+  <h3>Further reading</h3>
+  <ul>
+    <li><a href='https://github.com/bbatsov/ruby-style-guide'>Ruby Style Guide</a></li>
+    <li><a href='http://lostechies.com/derickbailey/2012/12/14/dear-open-source-project-leader-quit-being-a-jerk/'>Derick Bailey is Nice, and So We Should Be Nice</a></li>
+    <li><a href='http://blog.valerieaurora.org/2011/05/20/on-the-necessity-of-assholes/'>Valerie Aurora on the Necessity of A**holes</a></li>
+  </ul>
+
+</div>

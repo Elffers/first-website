@@ -31,11 +31,6 @@ class MyApp < Sinatra::Base
     erb :portfolio
   end
 
-  # get '/portfolio/dinosaurs' do
-  #   @body_class = "portfolio_body"
-  #   erb :dinosaurs
-  # end
-
   get '/blog' do
     @body_class = "blog_body"
     page = erb("/posts/#{@sorted_posts.first.first}".to_sym, layout: false)
